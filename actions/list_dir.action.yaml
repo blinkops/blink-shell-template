@@ -1,0 +1,18 @@
+# Describes the action and it's parameters
+name: "ls"
+description: "List a given directory"
+enabled: true
+entry_point: "list_dir.sh"
+parameters:
+  dir_name:
+    type: "string"
+    description: "The path of the description to list"
+    required: true
+
+
+# Note: Uses OpenAPI specification in order to describe types
+output:
+  directories:
+    type: array
+    items:
+      type: string

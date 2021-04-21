@@ -1,0 +1,8 @@
+name: "Shell Script Runner"
+description: "Run's the user supplied shell plugins"
+tags:
+  - linux
+  - system
+  - shell
+  - os
+provider: "shell"
