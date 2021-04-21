@@ -6,3 +6,4 @@ plugin:
   provider_configuration_path: "../provider_config.yaml"
 server:
   port: "1337"
+

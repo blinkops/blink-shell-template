@@ -1,4 +1,4 @@
-name: "Shell Script Runner"
+name: "ShellScriptRunner"
 description: "Run's the user supplied shell plugins"
 tags:
   - linux
