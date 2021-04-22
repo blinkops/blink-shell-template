@@ -20,7 +20,7 @@ func main() {
 	}
 
 	// Initialize the configuration.
-	err = os.Setenv(config.ConfigurationPathEnvVar, path.Join(currentDirectory, "config.yaml"))
+	err = os.Setenv(config.ConfigurationPathEnvVar, path.Join(currentDirectory, "plugin", "config.yaml"))
 	if err != nil {
 		logrus.Error("Failed to set configuration env variable: ", err)
 		panic(err)
