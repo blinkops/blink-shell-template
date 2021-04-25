@@ -98,6 +98,7 @@ func NewShellRunner(rootPluginDirectory string) (*ShellRunner, error) {
 		return nil, err
 	}
 
+
 	return &ShellRunner{
 		actions:     actions,
 		description: *description,
