@@ -4,8 +4,7 @@ ENV GOPRIVATE=github.com/blinkops
 
 WORKDIR /go/src/github.com/blinkops/shell-script-runner/plugin
 
-COPY go.mod .
-COPY go.sum .
+COPY go.mod go.sum .
 RUN go mod download
 COPY . .
 
@@ -25,9 +24,3 @@ EXPOSE 1337
 
 # Set the default entrypoint (Should not be changed in inheriting layers).
 ENTRYPOINT ./plugin
-
-
-
-
-
-
