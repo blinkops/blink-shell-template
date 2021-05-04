@@ -5,22 +5,23 @@ import (
 	"github.com/blinkops/plugin-sdk/plugin/config"
 	"github.com/sirupsen/logrus"
 	"os"
-	"path"
+	"path/filepath"
 )
 
 func main() {
 
 	logrus.SetLevel(logrus.DebugLevel)
 
-	// Get the current directory.
-	currentDirectory, err := os.Getwd()
+	executable, err := os.Executable()
 	if err != nil {
-		logrus.Error("Failed getting current directory: ", err)
+		logrus.Error("Failed to get current executable with error: ", err)
 		panic(err)
 	}
 
+	currentDirectory := filepath.Dir(executable)
+
 	// Initialize the configuration.
-	err = os.Setenv(config.ConfigurationPathEnvVar, path.Join(currentDirectory, "plugin", "config.yaml"))
+	err = os.Setenv(config.ConfigurationPathEnvVar, "config.yaml")
 	if err != nil {
 		logrus.Error("Failed to set configuration env variable: ", err)
 		panic(err)
