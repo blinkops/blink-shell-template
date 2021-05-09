@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"github.com/blinkops/plugin-sdk/plugin"
 	actions2 "github.com/blinkops/plugin-sdk/plugin/actions"
 	config2 "github.com/blinkops/plugin-sdk/plugin/config"
@@ -9,6 +10,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"os/exec"
 	"path"
+	"strings"
 )
 
 type ShellRunner struct {
@@ -37,11 +39,12 @@ func (p *ShellRunner) findActionByName(requestedName string) (*plugin.Action, er
 	return nil, errors.New("unknown action was requested")
 }
 
-func (p *ShellRunner) executeActionEntryPoint(entryPointPath string, parameters []string) ([]byte, error) {
+func (p *ShellRunner) executeActionEntryPoint(entryPointPath string, envVars []string) ([]byte, error) {
 
-	logrus.Infoln("Executing entrypoint: ", entryPointPath, " with parameters: ", parameters)
+	logrus.Infoln("Executing entrypoint: ", entryPointPath, " with parameters: ", envVars)
 
-	command := exec.Command(entryPointPath, parameters...)
+	command := exec.Command(entryPointPath)
+	command.Env = envVars
 	outputBytes, err := command.Output()
 	if err != nil {
 		logrus.Error("Failed to execute command with error: ", err)
@@ -51,7 +54,17 @@ func (p *ShellRunner) executeActionEntryPoint(entryPointPath string, parameters 
 	return outputBytes, nil
 }
 
-func (p *ShellRunner) ExecuteAction(request *plugin.ExecuteActionRequest) (*plugin.ExecuteActionResponse, error) {
+func translateToEnvVars(prefix string, entries map[string]string) []string {
+	var envVars []string
+	for key, value := range entries {
+		envVarValue := fmt.Sprintf("%s_%s=%s", strings.ToUpper(prefix), strings.ToUpper(key), value)
+		envVars = append(envVars, envVarValue)
+	}
+
+	return envVars
+}
+
+func (p *ShellRunner) ExecuteAction(actionContext *plugin.ActionContext, request *plugin.ExecuteActionRequest) (*plugin.ExecuteActionResponse, error) {
 
 	logrus.Debug("Handling ExecuteAction request")
 
@@ -63,7 +76,7 @@ func (p *ShellRunner) ExecuteAction(request *plugin.ExecuteActionRequest) (*plug
 	}
 
 	// Parse the required parameters.
-	var parameters []string
+	parameters := map[string]string{}
 	for requestedParam, paramDescription := range action.Parameters {
 		paramValue, ok := request.Parameters[requestedParam]
 		if !ok && paramDescription.Required {
@@ -72,12 +85,24 @@ func (p *ShellRunner) ExecuteAction(request *plugin.ExecuteActionRequest) (*plug
 			return nil, err
 		}
 
-		parameters = append(parameters, paramValue)
+		parameters[requestedParam] = paramValue
 	}
+
+	contextEntries := map[string]string{}
+	for contextKey, contextValue := range actionContext.GetAllContextEntries() {
+		contextEntries[contextKey] = fmt.Sprintf("%v", contextValue)
+	}
+
+	actionEnvVars := translateToEnvVars("ACTION", parameters)
+	contextEnvVars := translateToEnvVars("CONTEXT", contextEntries)
+
+	var finalEnvVars []string
+	finalEnvVars = append(finalEnvVars, actionEnvVars...)
+	finalEnvVars = append(finalEnvVars, contextEnvVars...)
 
 	// And finally execute the actual entrypoint.
 	entryPointPath := path.Join(config2.GetConfig().Plugin.ActionsFolderPath, action.EntryPoint)
-	ouputBytes, err := p.executeActionEntryPoint(entryPointPath, parameters)
+	ouputBytes, err := p.executeActionEntryPoint(entryPointPath, finalEnvVars)
 	if err != nil {
 		return nil, err
 	}
