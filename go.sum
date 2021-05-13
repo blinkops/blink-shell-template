@@ -6,6 +6,8 @@ github.com/blinkops/plugin-sdk v1.0.8 h1:Lbsic59eBB19vMIpG9K2OSP11U/DwKgStJEIdlr
 github.com/blinkops/plugin-sdk v1.0.8/go.mod h1:8LLLrMHyk0iCDegY0RPgpvxwiqK+TjxVW9Bqft5Gm1A=
 github.com/blinkops/plugin-sdk v1.0.9 h1:wr4uQ0pYoKR7xOxW4WBLbgABITWLjSg2fUSpHR9zO5Q=
 github.com/blinkops/plugin-sdk v1.0.9/go.mod h1:8LLLrMHyk0iCDegY0RPgpvxwiqK+TjxVW9Bqft5Gm1A=
+github.com/blinkops/plugin-sdk v1.0.11 h1:2j18I53wYEvpkopfRm8pM4HuOxJbM+vkJcyvWRSbOTc=
+github.com/blinkops/plugin-sdk v1.0.11/go.mod h1:8LLLrMHyk0iCDegY0RPgpvxwiqK+TjxVW9Bqft5Gm1A=
 github.com/census-instrumentation/opencensus-proto v0.2.1 h1:glEXhBS5PSLLv4IXzLA5yPRVX4bilULVyxxbrfOtDAk=
 github.com/census-instrumentation/opencensus-proto v0.2.1/go.mod h1:f6KPmirojxKA12rnyqOA5BBL4O983OfeGPqjHWSTneU=
 github.com/client9/misspell v0.3.4 h1:ta993UF76GwbvJcIo3Y68y/M3WxlpEHPWIGDkJYwzJI=
