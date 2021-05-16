@@ -14,7 +14,7 @@ boolean isPR = false
 boolean isDeploy = false
 String pathToReports = "reports"
 
-node ("master") {
+node ("ci") {
   timestamps() {
     ansiColor('xterm'){
       try {
