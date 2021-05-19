@@ -2,25 +2,25 @@ FROM golang AS builder
 
 ENV GOPRIVATE=github.com/blinkops
 
-WORKDIR /go/src/github.com/blinkops/shell-script-runner/plugin
+WORKDIR /go/src/github.com/blinkops/blink-plugin-base
 
-COPY go.mod go.sum .
+COPY go.mod go.sum ./
 RUN go mod download
 COPY . .
 
 # Install the package
-RUN go install -v ./...
+RUN go install ./cmd/intpack
 
 FROM ubuntu AS plugin
 
-WORKDIR /shell-script-runner
+WORKDIR /blink-plugin-base
 
 # Copy only the required artifacts.
-COPY --from=builder /go/bin/plugin .
+COPY --from=builder /go/bin/intpack .
 COPY plugin/config.yaml config.yaml
 
 # Expose the gRPC port.
 EXPOSE 1337
 
 # Set the default entrypoint (Should not be changed in inheriting layers).
-ENTRYPOINT ./plugin
+ENTRYPOINT ./intpack

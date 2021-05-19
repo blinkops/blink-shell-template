@@ -1,20 +1,21 @@
 package main
 
 import (
+	"github.com/blinkops/blink-plugin-base/plugin"
 	"github.com/blinkops/plugin-sdk"
 	"github.com/blinkops/plugin-sdk/plugin/config"
-	"github.com/sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 	"os"
 	"path/filepath"
 )
 
 func main() {
 
-	logrus.SetLevel(logrus.DebugLevel)
+	log.SetLevel(log.DebugLevel)
 
 	executable, err := os.Executable()
 	if err != nil {
-		logrus.Error("Failed to get current executable with error: ", err)
+		log.Error("Failed to get current executable with error: ", err)
 		panic(err)
 	}
 
@@ -23,15 +24,16 @@ func main() {
 	// Initialize the configuration.
 	err = os.Setenv(config.ConfigurationPathEnvVar, "config.yaml")
 	if err != nil {
-		logrus.Error("Failed to set configuration env variable: ", err)
+		log.Error("Failed to set configuration env variable: ", err)
 		panic(err)
 	}
 
-	plugin, err := NewShellRunner(currentDirectory)
+	plugin, err := plugin.NewShellRunner(currentDirectory)
 	if err != nil {
-		logrus.Error("Failed to create plugin implementation: ", err)
+		log.Error("Failed to create plugin implementation: ", err)
 		panic(err)
 	}
 
 	err = plugin_sdk.Start(&*plugin)
 }
+

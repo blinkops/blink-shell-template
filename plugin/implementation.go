@@ -1,4 +1,4 @@
-package main
+package plugin
 
 import (
 	"errors"
@@ -16,6 +16,7 @@ import (
 type ShellRunner struct {
 	actions     []plugin.Action
 	description plugin.Description
+	rootDir     string
 }
 
 func (p *ShellRunner) Describe() plugin.Description {
@@ -89,8 +90,10 @@ func (p *ShellRunner) ExecuteAction(actionContext *plugin.ActionContext, request
 	}
 
 	contextEntries := map[string]string{}
-	for contextKey, contextValue := range actionContext.GetAllContextEntries() {
-		contextEntries[contextKey] = fmt.Sprintf("%v", contextValue)
+	if actionContext != nil {
+		for contextKey, contextValue := range actionContext.GetAllContextEntries() {
+			contextEntries[contextKey] = fmt.Sprintf("%v", contextValue)
+		}
 	}
 
 	actionEnvVars := translateToEnvVars("ACTION", parameters)
@@ -101,7 +104,7 @@ func (p *ShellRunner) ExecuteAction(actionContext *plugin.ActionContext, request
 	finalEnvVars = append(finalEnvVars, contextEnvVars...)
 
 	// And finally execute the actual entrypoint.
-	entryPointPath := path.Join(config2.GetConfig().Plugin.ActionsFolderPath, action.EntryPoint)
+	entryPointPath := path.Join(p.rootDir, config2.GetConfig().Plugin.ActionsFolderPath, action.EntryPoint)
 	ouputBytes, err := p.executeActionEntryPoint(entryPointPath, finalEnvVars)
 	if err != nil {
 		return nil, err
@@ -123,9 +126,9 @@ func NewShellRunner(rootPluginDirectory string) (*ShellRunner, error) {
 		return nil, err
 	}
 
-
 	return &ShellRunner{
 		actions:     actions,
 		description: *description,
+		rootDir:     rootPluginDirectory,
 	}, nil
 }

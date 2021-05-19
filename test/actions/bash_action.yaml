@@ -1,0 +1,12 @@
+# Describes the action and it's parameters
+name: "bash"
+description: "Run bash command"
+enabled: true
+entry_point: "bash_action.sh"
+parameters:
+  cmd:
+    type: "string"
+    description: "bash command to run"
+    required: true
+
+

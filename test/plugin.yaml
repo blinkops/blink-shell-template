@@ -1,0 +1,6 @@
+name: "test123"
+description: "test plugin"
+tags:
+  - hpux
+  - aix
+provider: "gotest"
