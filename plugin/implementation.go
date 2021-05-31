@@ -6,6 +6,7 @@ import (
 	"github.com/blinkops/plugin-sdk/plugin"
 	actions2 "github.com/blinkops/plugin-sdk/plugin/actions"
 	config2 "github.com/blinkops/plugin-sdk/plugin/config"
+	"github.com/blinkops/plugin-sdk/plugin/connections"
 	description2 "github.com/blinkops/plugin-sdk/plugin/description"
 	"github.com/sirupsen/logrus"
 	"os/exec"
@@ -38,6 +39,11 @@ func (p *ShellRunner) findActionByName(requestedName string) (*plugin.Action, er
 	}
 
 	return nil, errors.New("unknown action was requested")
+}
+
+func (p *ShellRunner) TestCredentials(map[string]connections.ConnectionInstance) (*plugin.CredentialsValidationResponse, error) {
+	//TODO replace with real implemetation
+	return nil, nil
 }
 
 func (p *ShellRunner) executeActionEntryPoint(entryPointPath string, envVars []string) ([]byte, error) {
