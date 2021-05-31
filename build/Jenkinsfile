@@ -11,7 +11,9 @@ node ("ci") {
   pipeline.dockerImageName = "plugin-base"
   pipeline.dockerRegistry = Constants.PUBLIC_DOCKER_REGISTRY
   pipeline.isMultiImage = false
-  pipeline.runUnitTests = true
+  // Switch to true once this bug is solved https://github.com/golang/go/issues/44129
+  // pipeline.runUnitTests = true
+  pipeline.runUnitTests = false
 
   pipeline.run()
 
