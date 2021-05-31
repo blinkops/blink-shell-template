@@ -1,4 +1,4 @@
-FROM golang AS base
+FROM golang:1.16.3 AS base
 
 ENV GOPRIVATE=github.com/blinkops
 WORKDIR /go/src/github.com/blinkops/blink-plugin-base
