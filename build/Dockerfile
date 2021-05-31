@@ -1,7 +1,7 @@
 FROM golang:1.16.3 AS base
 
 ENV GOPRIVATE=github.com/blinkops
-WORKDIR /go/src/github.com/blinkops/blink-plugin-base
+WORKDIR /go/src/github.com/blinkops/blink-base
 
 COPY go.mod go.sum ./
 RUN go mod download
@@ -37,7 +37,7 @@ COPY --from=test /reports/test_report.xml .
 ##################
 FROM ubuntu AS plugin
 
-WORKDIR /blink-plugin-base
+WORKDIR /blink-base
 
 # Copy only the required artifacts.
 COPY --from=builder /go/bin/intpack .

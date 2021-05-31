@@ -1,9 +1,9 @@
 package main
 
 import (
-	"github.com/blinkops/blink-plugin-base/plugin"
-	"github.com/blinkops/plugin-sdk"
-	"github.com/blinkops/plugin-sdk/plugin/config"
+	"github.com/blinkops/blink-base/plugin"
+	"github.com/blinkops/blink-sdk"
+	"github.com/blinkops/blink-sdk/plugin/config"
 	log "github.com/sirupsen/logrus"
 	"os"
 	"path/filepath"
@@ -36,4 +36,3 @@ func main() {
 
 	err = plugin_sdk.Start(&*plugin)
 }
-

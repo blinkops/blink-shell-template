@@ -1,9 +1,9 @@
-module github.com/blinkops/blink-plugin-base
+module github.com/blinkops/blink-base
 
 go 1.16
 
 require (
-	github.com/blinkops/plugin-sdk v1.0.18
+	github.com/blinkops/blink-sdk v1.0.25
 	github.com/sirupsen/logrus v1.8.1
 	github.com/stretchr/testify v1.7.0
 	golang.org/x/net v0.0.0-20210421230115-4e50805a0758 // indirect

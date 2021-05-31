@@ -2,8 +2,8 @@ package plugin
 
 import (
 	"fmt"
-	"github.com/blinkops/plugin-sdk/plugin"
-	"github.com/blinkops/plugin-sdk/plugin/config"
+	"github.com/blinkops/blink-sdk/plugin"
+	"github.com/blinkops/blink-sdk/plugin/config"
 	log "github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
