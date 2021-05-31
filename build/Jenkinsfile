@@ -1,105 +1,18 @@
 @Library('jenkins-pipeline-lib')
 import blink.jenkins.utils.*
 import blink.jenkins.*
-
-String stageName = ""
-String projectName = "blink-plugin-base"
-String baseImageName = "plugin-base"
-String mainBranchName = "master"
-String slackChannel = ""
-String artifactsList = "version"
-String branchName = ""
-String versionName = ""
-boolean isPR = false
-boolean isDeploy = false
-String pathToReports = "reports"
+import blink.jenkins.ci.*
 
 node ("ci") {
-  timestamps() {
-    ansiColor('xterm'){
-      try {
 
-        stage("Setup"){
-          echo "### Setup"
-          stageName = env.STAGE_NAME
-          Utils.cleanWorkspace(this)
-          (branchName, isPR)  = Utils.setBranchProperties(this, mainBranchName)
-          echo "## Branch is ${branchName}, isPR is ${isPR}"
-          slackChannel = (branchName != mainBranchName) ? "#jenkins-blink-plugins-ci-branch" : "#jenkins-blink-plugins-ci"
-        }
+  def pipeline = new PluginPipeline(this)
+  pipeline.projectName = "blink-plugin-base"
+  pipeline.mainBranchName = "master"
+  pipeline.dockerImageName = "plugin-base"
+  pipeline.dockerRegistry = Constants.PUBLIC_DOCKER_REGISTRY
+  pipeline.isMultiImage = false
+  pipeline.runUnitTests = true
 
-        stage('Checkout') {
-          echo "### Checkout"
-          stageName = env.STAGE_NAME
-          GitUtils.checkout(this, Constants.ORG_NAME, projectName, branchName)
+  pipeline.run()
 
-        }
-
-        stage('BuildInfo') {
-          echo "### BuildInfo"
-          stageName = env.STAGE_NAME
-          echo "## Set Version name"
-          versionName = Utils.setVersionName(this, branchName, mainBranchName, isPR, "version.txt")
-          echo "## VersionName is ${versionName}"
-
-          currentBuild.displayName = versionName
-          currentBuild.description = "Branch: <b>${branchName}</b>"
-          // currentBuild.description = (isPR || branchName == mainBranchName) ? currentBuild.description : currentBuild.description + ", Deploy <b>${env.IS_DEPLOY}</b>"
-
-          echo "Create version file"
-          sh "echo ${versionName} > version"
-        }
-
-        stage('Docker Build') {
-          echo "### Docker Build"
-          stageName = env.STAGE_NAME
-          String gitCommitSha = GitUtils.getCommitSha(this)
-          String imageName = "${baseImageName}:${versionName}"
-          echo "## imageName is ${imageName}"
-          DockerUtils.build(this, Constants.PUBLIC_DOCKER_REGISTRY,  imageName,
-                      """-f build/Dockerfile --build-arg GIT_COMMIT=${gitCommitSha}""",
-                      ".")
-        }
-
-
-
-        if (currentBuild.currentResult == "SUCCESS" && !isPR) {
-          stage('Push Docker Image') {
-            echo "### Push Docker Image"
-            stageName = env.STAGE_NAME
-            DockerUtils.loginDockerHub(this )
-            DockerUtils.push(this, Constants.PUBLIC_DOCKER_REGISTRY, "${baseImageName}:${versionName}")
-          }
-
-          stage("TagBuild") {
-              echo "### TagBuild"
-              stageName = env.STAGE_NAME
-              GitUtils.tagBuild(this, projectName, versionName)
-          }
-        }
-      } catch (Exception e) {
-          currentBuild.result = "FAILURE"
-          throw e
-      } finally {
-          stage("Archive") {
-              echo "### Archive"
-              Utils.archiveArtifacts(this, artifactsList)
-          }
-
-          stage("Notify") {
-              echo "### Notify"
-              GitUtils.setBuildStsinGitHub(this, projectName)
-              boolean isMainBranch = (branchName == mainBranchName) ? true : false
-              GitUtils.setCoverageinGitHub(this, isMainBranch, isPR)
-              def notify = new Notify(this)
-              String tokenName = "jenkins-slack-token"
-              notify.slackNotify(slackChannel, tokenName, branchName, versionName, true, "", false, stageName)
-          }
-          // stage ('Final') {
-          //   echo "### Final"
-          //   cleanupResources()
-          // }
-      }
-    }
-  }
 }
