@@ -35,7 +35,7 @@ COPY --from=test /reports/controller_coverage.xml .
 COPY --from=test /reports/test_report.xml .
 
 ##################
-FROM ubuntu AS plugin
+FROM ubuntu:xenial-20210429 AS plugin
 
 WORKDIR /blink-base
 
@@ -45,6 +45,9 @@ COPY plugin/config.yaml config.yaml
 
 # Expose the gRPC port.
 EXPOSE 1337
+
+ARG GIT_COMMIT=unspecified
+LABEL GIT_COMMIT=$GIT_COMMIT
 
 # Set the default entrypoint (Should not be changed in inheriting layers).
 ENTRYPOINT ./intpack
