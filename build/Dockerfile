@@ -35,7 +35,8 @@ COPY --from=test /reports/controller_coverage.xml .
 COPY --from=test /reports/test_report.xml .
 
 ##################
-FROM ubuntu:xenial-20210429 AS plugin
+#  ubuntu 20.04
+FROM ubuntu:focal-20210416 AS plugin
 
 WORKDIR /blink-base
 
