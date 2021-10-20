@@ -36,7 +36,7 @@ COPY --from=test /reports/test_report.xml .
 
 ##################
 #  ubuntu 20.04
-FROM ubuntu:focal-20210416 AS plugin
+FROM ubuntu:focal-20210921 AS plugin
 
 WORKDIR /blink-base
 
