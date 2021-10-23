@@ -9,6 +9,7 @@ import (
 	"github.com/blinkops/blink-sdk/plugin/connections"
 	description2 "github.com/blinkops/blink-sdk/plugin/description"
 	"github.com/sirupsen/logrus"
+	"os"
 	"os/exec"
 	"path"
 	"strings"
@@ -51,7 +52,9 @@ func (p *ShellRunner) executeActionEntryPoint(entryPointPath string, envVars []s
 	logrus.Infoln("Executing entrypoint: ", entryPointPath, " with parameters: ", envVars)
 
 	command := exec.Command(entryPointPath)
-	command.Env = envVars
+	command.Env = os.Environ()
+	command.Env = append(command.Env, envVars...)
+	command.Dir = path.Join(p.rootDir, config2.GetConfig().Plugin.ActionsFolderPath)
 	outputBytes, err := command.Output()
 	if err != nil {
 		logrus.Error("Failed to execute command with error: ", err)
