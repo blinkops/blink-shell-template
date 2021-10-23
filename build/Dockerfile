@@ -1,54 +1,20 @@
-FROM golang:1.16.3 AS base
+FROM golang:1.16.3 AS builder
 
-ENV GOPRIVATE=github.com/blinkops
 WORKDIR /go/src/github.com/blinkops/blink-base
+COPY .. .
 
-COPY go.mod go.sum ./
-RUN go mod download
-COPY . .
+RUN go build -tags netgo -ldflags '-w -extldflags "-static"' -o /go/bin/plugin ./main.go
 
-##################
-FROM base AS builder
-
-# Install the package
-RUN go install ./cmd/intpack
-
-##################
-FROM base AS test
-
-RUN mkdir -p /reports && \
-    go get -u github.com/jstemmer/go-junit-report && \
-    go get github.com/axw/gocov/... && \
-    go get github.com/AlekSi/gocov-xml && \
-    go mod tidy
-
-#  Run Tests
-RUN go test -v -cover -covermode=count -coverprofile=profile.cov ... | \
-    go-junit-report > /reports/test_report.xml && \
-    go tool cover -func profile.cov && \
-    gocov convert profile.cov | gocov-xml > /reports/controller_coverage.xml
-
-##################
-FROM scratch AS reports
-
-COPY --from=test /reports/controller_coverage.xml .
-COPY --from=test /reports/test_report.xml .
-
-##################
-#  ubuntu 20.04
-FROM ubuntu:focal-20210416 AS plugin
+FROM alpine:3.14.0 AS plugin
 
 WORKDIR /blink-base
+COPY --from=builder /go/bin/plugin .
+COPY config.yaml plugin.yaml ./
+COPY actions/ ./actions/
 
-# Copy only the required artifacts.
-COPY --from=builder /go/bin/intpack .
-COPY plugin/config.yaml config.yaml
-
-# Expose the gRPC port.
+# Expose the gRPC port
 EXPOSE 1337
 
-ARG GIT_COMMIT=unspecified
-LABEL GIT_COMMIT=$GIT_COMMIT
+RUN chmod a+x plugin
 
-# Set the default entrypoint (Should not be changed in inheriting layers).
-ENTRYPOINT ./intpack
+ENTRYPOINT ./plugin

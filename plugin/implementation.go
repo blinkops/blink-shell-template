@@ -102,7 +102,7 @@ func (p *ShellRunner) ExecuteAction(actionContext *plugin.ActionContext, request
 		}
 	}
 
-	actionEnvVars := translateToEnvVars("ACTION", parameters)
+	actionEnvVars := translateToEnvVars("INPUT", parameters)
 	contextEnvVars := translateToEnvVars("CONTEXT", contextEntries)
 
 	var finalEnvVars []string
