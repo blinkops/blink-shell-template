@@ -1,6 +1,7 @@
 package plugin
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"github.com/blinkops/blink-sdk/plugin"
@@ -55,13 +56,16 @@ func (p *ShellRunner) executeActionEntryPoint(entryPointPath string, envVars []s
 	command.Env = os.Environ()
 	command.Env = append(command.Env, envVars...)
 	command.Dir = path.Join(p.rootDir, config2.GetConfig().Plugin.ActionsFolderPath)
-	outputBytes, err := command.Output()
+	var stdout, stderr bytes.Buffer
+	command.Stdout = &stdout
+	command.Stderr = &stderr
+	err := command.Run()
 	if err != nil {
-		logrus.Error("Failed to execute command with error: ", err)
-		return nil, err
+		returnErr := fmt.Errorf("failed to execute command with error: %v, output: %v", err, string(stderr.Bytes()))
+		logrus.Error(returnErr)
+		return nil, returnErr
 	}
-
-	return outputBytes, nil
+	return stdout.Bytes(), nil
 }
 
 func translateToEnvVars(prefix string, entries map[string]string) []string {
