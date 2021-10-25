@@ -1,6 +1,7 @@
 package plugin
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"github.com/blinkops/blink-sdk/plugin"
@@ -9,6 +10,7 @@ import (
 	"github.com/blinkops/blink-sdk/plugin/connections"
 	description2 "github.com/blinkops/blink-sdk/plugin/description"
 	"github.com/sirupsen/logrus"
+	"os"
 	"os/exec"
 	"path"
 	"strings"
@@ -51,14 +53,19 @@ func (p *ShellRunner) executeActionEntryPoint(entryPointPath string, envVars []s
 	logrus.Infoln("Executing entrypoint: ", entryPointPath, " with parameters: ", envVars)
 
 	command := exec.Command(entryPointPath)
-	command.Env = envVars
-	outputBytes, err := command.Output()
+	command.Env = os.Environ()
+	command.Env = append(command.Env, envVars...)
+	command.Dir = path.Join(p.rootDir, config2.GetConfig().Plugin.ActionsFolderPath)
+	var stdout, stderr bytes.Buffer
+	command.Stdout = &stdout
+	command.Stderr = &stderr
+	err := command.Run()
 	if err != nil {
-		logrus.Error("Failed to execute command with error: ", err)
-		return nil, err
+		returnErr := fmt.Errorf("failed to execute command with error: %v, output: %v", err, string(stderr.Bytes()))
+		logrus.Error(returnErr)
+		return nil, returnErr
 	}
-
-	return outputBytes, nil
+	return stdout.Bytes(), nil
 }
 
 func translateToEnvVars(prefix string, entries map[string]string) []string {
@@ -102,7 +109,7 @@ func (p *ShellRunner) ExecuteAction(actionContext *plugin.ActionContext, request
 		}
 	}
 
-	actionEnvVars := translateToEnvVars("ACTION", parameters)
+	actionEnvVars := translateToEnvVars("INPUT", parameters)
 	contextEnvVars := translateToEnvVars("CONTEXT", contextEntries)
 
 	var finalEnvVars []string

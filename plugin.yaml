@@ -1,0 +1,6 @@
+name: "shell-template"
+description: "shell example plugin"
+tags:
+  - shell
+  - bash
+provider: "blink"

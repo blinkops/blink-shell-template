@@ -2,27 +2,28 @@ package main
 
 import (
 	"github.com/blinkops/blink-base/plugin"
-	"github.com/blinkops/blink-sdk"
+	blinkSdk "github.com/blinkops/blink-sdk"
 	"github.com/blinkops/blink-sdk/plugin/config"
 	log "github.com/sirupsen/logrus"
 	"os"
-	"path/filepath"
+	"path"
 )
 
 func main() {
 
 	log.SetLevel(log.DebugLevel)
 
-	executable, err := os.Executable()
+	// Get the current directory.
+	currentDirectory, err := os.Getwd()
 	if err != nil {
-		log.Error("Failed to get current executable with error: ", err)
+		log.Error("Failed getting current directory: ", err)
 		panic(err)
 	}
 
-	currentDirectory := filepath.Dir(executable)
+	log.Info("Current directory is: ", currentDirectory)
 
 	// Initialize the configuration.
-	err = os.Setenv(config.ConfigurationPathEnvVar, "config.yaml")
+	err = os.Setenv(config.ConfigurationPathEnvVar, path.Join(currentDirectory, "config.yaml"))
 	if err != nil {
 		log.Error("Failed to set configuration env variable: ", err)
 		panic(err)
@@ -34,5 +35,9 @@ func main() {
 		panic(err)
 	}
 
-	err = plugin_sdk.Start(&*plugin)
+	err = blinkSdk.Start(plugin)
+	if err != nil {
+		log.Fatal("Error during server startup: ", err)
+	}
+
 }

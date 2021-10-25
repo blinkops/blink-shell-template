@@ -1,0 +1,16 @@
+# Describes the action and it's parameters
+name: "sum"
+description: "sum two numbers"
+enabled: true
+entry_point: "sum.sh"
+parameters:
+  first:
+    type: "int"
+    description: "first number"
+    required: true
+  second:
+    type: "int"
+    description: "second number"
+    required: true
+
+
