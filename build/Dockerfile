@@ -5,7 +5,7 @@ COPY .. .
 
 RUN go build -tags netgo -ldflags '-w -extldflags "-static"' -o /go/bin/plugin ./main.go
 
-FROM alpine:3.14.0 AS plugin
+FROM alpine:3.14.5 AS plugin
 
 WORKDIR /blink-base
 COPY --from=builder /go/bin/plugin .
